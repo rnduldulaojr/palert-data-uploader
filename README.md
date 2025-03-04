@@ -18,7 +18,7 @@ A lightweight service that monitors a directory for new files and automatically 
 ## Quick Install
 
 ```bash
-wget -O - https://raw.githubusercontent.com/YOUR_USERNAME/palert-data-uploader/main/download-and-install.sh | bash
+wget -O - https://raw.githubusercontent.com/rnduldulaojr/palert-data-uploader/main/download-and-install.sh | bash
 ```
 
 ## Manual Installation
@@ -58,7 +58,7 @@ Configure the following environment variables in `/etc/palert-uploader/.env`:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/palert-data-uploader.git
+git clone https://github.com/rnduldulaojr/palert-data-uploader.git
 cd palert-data-uploader
 
 # Build the package
