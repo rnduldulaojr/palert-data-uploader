@@ -8,9 +8,9 @@ echo "Building PAlert Data Uploader package..."
 # Create build and dist directories
 mkdir -p build dist
 
-# Build for ARM64 (Raspberry Pi)
+# Build for ARM (Raspberry Pi)
 echo "Building binary..."
-GOOS=linux GOARCH=arm64 go build -o build/palert-uploader
+GOOS=linux GOARCH=arm GOARM=7 go build -o build/palert-uploader
 
 # Create a temporary packaging directory
 PACKAGE_DIR=$(mktemp -d)
