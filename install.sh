@@ -28,7 +28,7 @@ sudo mkdir -p /var/log/palert-uploader
 
 # Copy binary
 echo "Installing binary..."
-sudo cp build/palert-uploader /usr/local/bin/
+sudo cp palert-uploader /usr/local/bin/
 sudo chmod +x /usr/local/bin/palert-uploader
 
 # Copy service file
