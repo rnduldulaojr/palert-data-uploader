@@ -1,0 +1,14 @@
+[Unit]
+Description=PAlert Data Uploader Service
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+EnvironmentFile=/etc/palert-uploader/.env
+ExecStart=/usr/local/bin/palert-uploader
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
