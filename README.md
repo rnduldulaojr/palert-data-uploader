@@ -18,7 +18,8 @@ A lightweight service that monitors a directory for new files and automatically 
 ## Quick Install
 
 ```bash
-wget -O - https://raw.githubusercontent.com/rnduldulaojr/palert-data-uploader/main/download-and-install.sh | bash
+# Download and run the installer
+curl -O https://raw.githubusercontent.com/rnduldulaojr/palert-data-uploader/main/download-and-install.sh && chmod +x download-and-install.sh && ./download-and-install.sh
 ```
 
 ## Manual Installation
