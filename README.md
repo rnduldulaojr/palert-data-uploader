@@ -12,7 +12,7 @@ A lightweight service that monitors a directory for new files and automatically 
 
 ## Requirements
 
-- Raspberry Pi running Linux (tested on Raspberry Pi 3 Model B)
+- Raspberry Pi running Linux (tested on Raspberry Pi 3 Model B Rev 1.2)
 - Go 1.22 or later (only for building from source)
 
 ## Quick Install

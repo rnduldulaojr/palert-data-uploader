@@ -12,34 +12,11 @@ import (
 	"github.com/jlaffaye/ftp"
 )
 
-var (
-	ftpConn *ftp.ServerConn
-)
-
 func init() {
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		fmt.Printf("Warning: .env file not found. Using environment variables.\n")
 	}
-}
-
-func connectFTP() error {
-	var err error
-	ftpConn, err = ftp.Dial(
-		fmt.Sprintf("%s:%s", os.Getenv("FTP_HOST"), os.Getenv("FTP_PORT")),
-		ftp.DialWithTimeout(5*time.Second),
-	)
-	if err != nil {
-		return fmt.Errorf("failed to connect to FTP server: %v", err)
-	}
-
-	err = ftpConn.Login(os.Getenv("FTP_USER"), os.Getenv("FTP_PASSWORD"))
-	if err != nil {
-		return fmt.Errorf("failed to login to FTP server: %v", err)
-	}
-
-	log.Printf("Successfully connected to FTP server")
-	return nil
 }
 
 func uploadFile(filePath string) error {
@@ -49,45 +26,38 @@ func uploadFile(filePath string) error {
 	}
 	defer file.Close()
 
-	// Ensure FTP connection is alive
-	if ftpConn == nil {
-		if err := connectFTP(); err != nil {
-			return err
-		}
+	// Create a new FTP connection
+	conn, err := ftp.Dial(
+		fmt.Sprintf("%s:%s", os.Getenv("FTP_HOST"), os.Getenv("FTP_PORT")),
+		ftp.DialWithTimeout(5*time.Second),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to connect to FTP server: %v", err)
+	}
+	defer conn.Quit()
+
+	// Login
+	err = conn.Login(os.Getenv("FTP_USER"), os.Getenv("FTP_PASSWORD"))
+	if err != nil {
+		return fmt.Errorf("failed to login to FTP server: %v", err)
 	}
 
 	// Change to the preconfigured upload directory
 	ftpUploadDir := os.Getenv("FTP_UPLOAD_DIR")
 	if ftpUploadDir != "" {
-		if err := ftpConn.ChangeDir(ftpUploadDir); err != nil {
-			return fmt.Errorf("failed to change to upload directory %s: %v", ftpUploadDir, err)
+		if err := conn.ChangeDir(ftpUploadDir); err != nil {
+			log.Printf("Warning: Failed to change to upload directory %s: %v (continuing upload)", ftpUploadDir, err)
 		}
 	}
 
 	// Upload the file
 	filename := filepath.Base(filePath)
-	err = ftpConn.Stor(filename, file)
-	if err != nil {
-		// Try to reconnect once if the upload fails
-		log.Printf("Upload failed, attempting to reconnect...")
-		if connectFTP() == nil {
-			// Change directory again after reconnect
-			if ftpUploadDir != "" {
-				if err := ftpConn.ChangeDir(ftpUploadDir); err != nil {
-					return fmt.Errorf("failed to change to upload directory after reconnect: %v", err)
-				}
-			}
-			// Reset file position to start
-			file.Seek(0, 0)
-			err = ftpConn.Stor(filename, file)
-		}
-	}
-
+	err = conn.Stor(filename, file)
 	if err != nil {
 		return fmt.Errorf("failed to upload file: %v", err)
 	}
 
-	log.Printf("File uploaded successfully: %s to directory %s", filename, ftpUploadDir)
+	log.Printf("File uploaded successfully: %s", filename)
 	return nil
 }
 
@@ -168,11 +138,6 @@ func checkDirPermissions(dir string) error {
 
 func main() {
 	log.Printf("Starting PAlert Data Uploader...")
-
-	// Initial FTP connection
-	if err := connectFTP(); err != nil {
-		log.Printf("Error: %v", err)
-	}
 
 	// Get watch directory
 	watchDir := os.Getenv("WATCH_DIR")
